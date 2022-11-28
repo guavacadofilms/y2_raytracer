@@ -77,9 +77,7 @@ class SphericalRefraction(OpticalElement):
         ray_k = ray.k()
 
         # distance between origin and point (r), dist = np.sqrt((ax-bx)^2 + (ay-by)^2 + (az-bz)^2)
-        centre_to_ray = np.array(
-            [(ray_p[0] - centre[0]), (ray_p[1] - centre[1]), (ray_p[2] - centre[2])]
-        )
+        centre_to_ray = np.array([(ray_p[0] - centre[0]), (ray_p[1] - centre[1]), (ray_p[2] - centre[2])])
         print(f"Vector from centre to ray: {centre_to_ray}")
 
         # dot product between r and k
@@ -87,19 +85,13 @@ class SphericalRefraction(OpticalElement):
         print(f"Dot product of r and k: {r_dot_k}")
 
         # absolute value of r vector
-        abs_centre_to_ray = np.sqrt(
-            centre_to_ray[0] ** 2 + centre_to_ray[1] ** 2 + centre_to_ray[2] ** 2
-        )
+        abs_centre_to_ray = np.sqrt(centre_to_ray[0] ** 2 + centre_to_ray[1] ** 2 + centre_to_ray[2] ** 2)
         print(np.absolute(centre_to_ray))
         print(abs_centre_to_ray)
 
         # use (-r vector * direction of ray) plus or minus sqrt(    (r*k)**2    -    (rx + ry + rz) - radius**2    )
-        length_one = -r_dot_k + np.sqrt(
-            r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2)
-        )
-        length_two = -r_dot_k - np.sqrt(
-            r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2)
-        )
+        length_one = -r_dot_k + np.sqrt(r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2))
+        length_two = -r_dot_k - np.sqrt(r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2))
         print(f"length one, {length_one} and length two: {length_two}")
 
         # intercept = ray position + (length * ray direction)
