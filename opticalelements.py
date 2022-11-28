@@ -75,7 +75,7 @@ class SphericalRefraction(OpticalElement):
         ray_k = ray.k()
 
         #distance between origin and point (r), dist = np.sqrt((ax-bx)^2 + (ay-by)^2 + (az-bz)^2)
-        centre_to_ray = np.array([(ray_p[0] - centre[0]),(ray_p[1] - centre[1]),(ray_p[2] - centre[2])])
+        centre_to_ray = np.array([(ray_p[0] - centre[0]), (ray_p[1] - centre[1]), (ray_p[2] - centre[2])])
         print(f"Vector from centre to ray: {centre_to_ray}")
         
         #dot product between r and k
@@ -101,10 +101,8 @@ class SphericalRefraction(OpticalElement):
         print(f"distance one: {dist_one}, distance two: {dist_two}")
 
         #check which intercept is valid (within aperture radius)
-        #if neither, return "None :)"
-        for i in [intercept_one,intercept_two]:
+        #if neither, return "None"
+        for i in (intercept_one,intercept_two):
             if i[0] <= self.__aperturerad and i[1] <= self.__aperturerad:
-                valid_intercept = i
-            else:
-                valid_intercept = "None :)"
-        return valid_intercept
+                return i       
+        return None

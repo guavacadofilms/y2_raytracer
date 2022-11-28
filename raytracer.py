@@ -25,6 +25,7 @@ class Ray:
         Exception
             If input direction is not a 3-element array
         """
+
         if len(point) != 3:
             raise Exception("point must have 3 elements (x,y,z co-ordinates")
         if len(direction) != 3:
@@ -72,6 +73,7 @@ class Ray:
         Exception
             If new direction is not a 3-element array
         """
+        
         if len(new_p) != 3:
             raise Exception("new point must have 3 elements (x,y,z co-ordinates")
         if len(new_k) != 3:
