@@ -103,8 +103,8 @@ class SphericalRefraction(OpticalElement):
         print(f"distance one: {dist_one}, distance two: {dist_two}")
 
         # check which intercept is valid (within aperture radius)
-        # if neither, return "None"
+        # if neither, return None
         for i in (intercept_one, intercept_two):
-            if i[0] <= self.__aperturerad and i[1] <= self.__aperturerad:
+            if np.linalg.norm(i) <= self.__aperturerad:
                 return i
         return None
