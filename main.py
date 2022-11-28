@@ -4,5 +4,3 @@ import seaborn as sns
 import raytracer as rt
 
 sns.set_theme(style="darkgrid")
-
-
