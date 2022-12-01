@@ -32,6 +32,7 @@ class Ray:
             raise Exception("point must have 3 elements (x,y,z co-ordinates")
         if len(direction) != 3:
             raise Exception("direction must have 3 elements (x,y,z co-ordinates")
+            
         self.__pos = point
         self.__dir = direction
         self.__allpos = [np.array(point)]
@@ -76,14 +77,17 @@ class Ray:
         """
 
         if len(new_p) != 3:
-            raise Exception("new point must have 3 elements (x,y,z co-ordinates")
+            raise Exception("new point must have 3 elements (x,y,z co-ordinates)")
         if len(new_k) != 3:
-            raise Exception("new direction must have 3 elements (x,y,z co-ordinates")
+            raise Exception("new direction must have 3 elements (x,y,z co-ordinates)")
+
         self.__pos = new_p
         self.__dir = new_k
         self.__allpos = np.append(self.__allpos, [self.__pos], axis=0)
+
         return f"New point: {self.__pos}; new direction: {self.__dir}"
 
     def vertices(self):
         """Return array of all points comprising a ray"""
+
         return f"Array of all points: {self.__allpos}"
