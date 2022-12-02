@@ -168,7 +168,10 @@ class SphericalRefraction(OpticalElement):
         print(f"{cross_incident_normal = }")
 
         # set the normal of the plane which the ray is confined to, as a unit vector
-        unit_axis = normalise_vector(cross_incident_normal)
+        if np.linalg.norm(cross_incident_normal) == 0:
+            unit_axis = [0, 0, 1]
+        else:
+            unit_axis = normalise_vector(cross_incident_normal)
         print(f"{unit_axis = }")
 
         # use sin^2(x) + cos^2(x) = 1 to calculate sin(x)
@@ -239,8 +242,10 @@ class OutputPlane(OpticalElement):
     def intercept(self, ray):
         ray_pos = ray.p()
         ray_k = ray.k()
-        idk = (self.__zintercept - ray_pos[2]) / ray_k
-        self.__interceptpoint = ray_pos + (idk * ray_k)
+        idk = (self.__zintercept - ray_pos[2]) / ray_k[2]
+        print(f"{ray_k = }")
+        print(f"{idk = }")
+        self.__interceptpoint = np.add(ray_pos, (idk * ray_k))
         return self.__interceptpoint
 
     def propagate_ray(self, ray):

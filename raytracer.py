@@ -3,6 +3,7 @@ module containing Ray class
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Ray:
@@ -91,10 +92,17 @@ class Ray:
     def vertices(self):
         """Return array of all points comprising a ray"""
 
-        return f"Array of all points: {self.__allpos}"
+        return self.__allpos
 
     def terminate(self):
         self.__terminated = True
 
     def is_terminated(self):
         return self.__terminated
+
+    def plot(self, axis_one, axis_two):
+        points = self.vertices()
+        array_one = points[:,axis_one]
+        array_two = points[:,axis_two]
+        plt.plot(array_one, array_two)
+        plt.show()
