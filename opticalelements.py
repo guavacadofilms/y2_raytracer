@@ -103,7 +103,7 @@ class SphericalRefraction(OpticalElement):
         print(f"Radius: {rad}, centre: {centre}")
 
         ray_p = ray.p()
-        ray_k_unit = ray.k() / np.linalg.norm(ray.k())
+        ray_k_unit = ray.k()
 
         # distance between centre of element and ray (r), dist = np.sqrt((ax-bx)^2 + (ay-by)^2 + (az-bz)^2)
         centre_to_ray = np.subtract(ray_p, centre)
@@ -168,6 +168,8 @@ class SphericalRefraction(OpticalElement):
         print(f"{cross_incident_normal = }")
 
         # set the normal of the plane which the ray is confined to, as a unit vector
+        # if ray is going through centre, set unit axis to 1 to avoid division by 0 error
+        # when normalising [0, 0, 0]
         if np.linalg.norm(cross_incident_normal) == 0:
             unit_axis = [0, 0, 1]
         else:
@@ -214,12 +216,12 @@ class SphericalRefraction(OpticalElement):
         """
 
         intercept_point = self.intercept(ray)
-        print(intercept_point)
 
         if intercept_point is None:
             ray.terminate()
             raise NoInterceptError("Ray has no intercept with element")
-
+        
+        # set normal
         intercept_to_centre = np.subtract(intercept_point, self.__centre)
         unit_inter_to_centre = normalise_vector(intercept_to_centre)
         refracted_dir = self.snell(ray.k(), unit_inter_to_centre)

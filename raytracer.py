@@ -10,7 +10,7 @@ class Ray:
     """class for a Ray object"""
 
     def __init__(
-        self, point=[0, 0, 0], direction=[0, 0, 0]
+        self, point=[0, 0, 0], direction=[0, 0, 1]
     ):  # initialises a Ray object with a point and direction at the origin
         """Initialise a ray object
 
@@ -18,7 +18,7 @@ class Ray:
         ----------
         point : array-like, default=[0,0,0]
             Sets current position of ray in 3D cartesian co-ordinate space
-        direction : array-like, default=[0,0,0]
+        direction : array-like, default=[0,0,1]
             Sets current direction of ray in 3D cartesian co-ordinate space
 
         Raises
@@ -35,7 +35,7 @@ class Ray:
             raise Exception("direction must have 3 elements (x,y,z co-ordinates")
 
         self.__pos = point
-        self.__dir = direction
+        self.__dir = direction / np.linalg.norm(direction) #normalise direction vector
         self.__allpos = [np.array(point)]
         self.__terminated = False
 
@@ -84,14 +84,13 @@ class Ray:
             raise Exception("new direction must have 3 elements (x,y,z co-ordinates)")
 
         self.__pos = new_p
-        self.__dir = new_k
+        self.__dir = new_k / np.linalg.norm(new_k)
         self.__allpos = np.append(self.__allpos, [self.__pos], axis=0)
 
         return f"New point: {self.__pos}; new direction: {self.__dir}"
 
     def vertices(self):
         """Return array of all points comprising a ray"""
-
         return self.__allpos
 
     def terminate(self):
