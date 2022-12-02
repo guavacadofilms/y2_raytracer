@@ -42,8 +42,14 @@ import numpy as np
 
 # testing propagate function for spherical element
 pos = [1, 1, 1]
-dir = [0, 1, 0]
+dir = [0, 0, 1]
 test_ray = rt.Ray(pos, dir)
 test_spherical = elems.SphericalRefraction(3, 0.5, 1, 1, 2)
+test_spherical.intercept(test_ray)
+test_spherical.propagate_ray(test_ray)
+
 print(test_spherical.intercept(test_ray))
 print(test_spherical.propagate_ray(test_ray))
+
+test_output_plane = elems.OutputPlane(100)
+print(test_output_plane.propagate_ray(test_ray))

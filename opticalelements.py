@@ -240,11 +240,11 @@ class OutputPlane(OpticalElement):
         ray_pos = ray.p()
         ray_k = ray.k()
         idk = (self.__zintercept - ray_pos[2]) / ray_k
-        self.__intercept_point = ray_pos + (idk * ray_k)
-        return self.__intercept_point
+        self.__interceptpoint = ray_pos + (idk * ray_k)
+        return self.__interceptpoint
 
     def propagate_ray(self, ray):
-        ray_k = ray.k()
-        ray.append(self.__intercept_point, ray_k)
+        ray.append(self.intercept(ray), ray.k())
+        return ray
         
 
