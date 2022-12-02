@@ -40,11 +40,9 @@ class OpticalElement:
     
         Raises
         ------
-        NotImplementedError : if called.
+        NotImplementedError : if called within this class
         """
-        return 2
-
-    # raise NotImplementedError()
+        raise NotImplementedError()
 
 class SphericalRefraction(OpticalElement):
     def __init__(self, z0, curve, n1, n2, rad):
@@ -70,7 +68,7 @@ class SphericalRefraction(OpticalElement):
         self.__n2 = n2
         self.__aperturerad = rad
 
-        # caculate radius with 1/curvature
+        # calculate radius with 1/curvature
         # calculate centre point of element as z0 + radius in z-direction
         if self.__curvature == 0:
             self.__radius = np.infty
@@ -107,7 +105,7 @@ class SphericalRefraction(OpticalElement):
         ray_p = ray.p()
         ray_k_unit = ray.k() / np.linalg.norm(ray.k())
 
-        # distance between origin and point (r), dist = np.sqrt((ax-bx)^2 + (ay-by)^2 + (az-bz)^2)
+        # distance between centre of element and ray (r), dist = np.sqrt((ax-bx)^2 + (ay-by)^2 + (az-bz)^2)
         centre_to_ray = np.subtract(ray_p, centre)
         print(f"Vector from centre to ray: {centre_to_ray}")
 
@@ -116,7 +114,7 @@ class SphericalRefraction(OpticalElement):
         print(f"Dot product of r and k: {r_dot_k}")
 
         # absolute value of r vector
-        abs_centre_to_ray = np.sqrt(centre_to_ray[0] ** 2 + centre_to_ray[1] ** 2 + centre_to_ray[2] ** 2)
+        abs_centre_to_ray = np.linalg.norm(centre_to_ray)
         print(f"|r|: {abs_centre_to_ray}")
 
         # use (-r vector * direction of ray) plus or minus sqrt(    (r*k)**2    -    (rx + ry + rz) - radius**2    )
@@ -143,8 +141,6 @@ class SphericalRefraction(OpticalElement):
                 return i
         return None
    
-    
-
     def snell(self,incident_dir,surface_normal):
         """Calcuate direction of refracted ray using Snell's law
 
@@ -171,11 +167,11 @@ class SphericalRefraction(OpticalElement):
         cross_incident_normal = np.cross(incident_dir, surface_normal)
         print(f"{cross_incident_normal = }")
 
-        # setting the normal of the plane which the ray is confined to, as a unit vector
+        # set the normal of the plane which the ray is confined to, as a unit vector
         unit_axis = normalise_vector(cross_incident_normal)
         print(f"{unit_axis = }")
 
-        # using sin^2(x) + cos^2(x) = 1 to calculate sin(x)
+        # use sin^2(x) + cos^2(x) = 1 to calculate sin(x)
         sin_theta_i = np.sqrt(1 - (dot_incident_normal ** 2))
         theta_i = np.arcsin(sin_theta_i)
         print(f"sin of incident theta: {sin_theta_i}")
@@ -191,13 +187,64 @@ class SphericalRefraction(OpticalElement):
         print(f"sin of refracted theta: {sin_theta_r}")
         print(f"refracted angle: {theta_r}")
         
-        # applying rotational matrix to normal unit vector to rotate by the angle of refraction
+        # apply rotational matrix to normal unit vector to rotate by the angle of refraction
         # in the plane of the incident angle and normal
         refracted_dir = np.dot(rotation_matrix(-theta_r, unit_axis), (surface_normal))
         print(rotation_matrix(theta_r, surface_normal))
 
         return refracted_dir
         
+    def propagate_ray(self, ray):
+        """Propagate ray through spherical element
 
+        Parameters
+        ----------
+        ray :
+            Incident ray
+
+        Returns
+        -------
+        ray.vertices() : array-like
+            Set of points which comprise the propagated ray
+        terminate_msg :
+            If ray has no valid intercept or is subject to total internal reflection
+        """
+
+        intercept_point = self.intercept(ray)
+        print(intercept_point)
+
+        if intercept_point is None:
+            ray.terminate()
+            raise NoInterceptError("Ray has no intercept with element")
+
+        intercept_to_centre = np.subtract(intercept_point, self.__centre)
+        unit_inter_to_centre = normalise_vector(intercept_to_centre)
+        refracted_dir = self.snell(ray.k(), unit_inter_to_centre)
+
+        if refracted_dir is None:
+            ray.terminate()
+            raise NoInterceptError("Ray is subject to total internal refraction")
+
+        ray.append(intercept_point, refracted_dir)
+        points = ray.vertices()
+        return points
+
+class NoInterceptError(Exception):
+    pass
+
+class OutputPlane(OpticalElement):
+    def __init__(self, z0):
+        self.__zintercept = z0
+
+    def intercept(self, ray):
+        ray_pos = ray.p()
+        ray_k = ray.k()
+        idk = (self.__zintercept - ray_pos[2]) / ray_k
+        self.__intercept_point = ray_pos + (idk * ray_k)
+        return self.__intercept_point
+
+    def propagate_ray(self, ray):
+        ray_k = ray.k()
+        ray.append(self.__intercept_point, ray_k)
         
 

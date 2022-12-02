@@ -32,10 +32,11 @@ class Ray:
             raise Exception("point must have 3 elements (x,y,z co-ordinates")
         if len(direction) != 3:
             raise Exception("direction must have 3 elements (x,y,z co-ordinates")
-            
+
         self.__pos = point
         self.__dir = direction
         self.__allpos = [np.array(point)]
+        self.__terminated = False
 
     def __repr__(self):
         return f"Ray(point=array{self.__pos}, direction=array({self.__dir}))"
@@ -91,3 +92,9 @@ class Ray:
         """Return array of all points comprising a ray"""
 
         return f"Array of all points: {self.__allpos}"
+
+    def terminate(self):
+        self.__terminated = True
+
+    def is_terminated(self):
+        return self.__terminated
