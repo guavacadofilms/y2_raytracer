@@ -1,29 +1,34 @@
 """
-module for optical elements
+Module containing Optical Element base class, with extended classes
+for different types of elements such as spherical surfaces and output planes.
+All elements have methods to propagate a ray object through them
 """
 
 import numpy as np
 
 def normalise_vector(vector):
+    """Normalise an input vector"""
+
     if len(vector) != 3:
         raise Exception("Enter 3-D vector as a 3-element array")
-    return vector/np.linalg.norm(vector)
+    return vector / np.linalg.norm(vector)
 
 def rotation_matrix(theta, unit_axis):
     """Calculate rotation matrix from angle and axis
     
     Parameters
-        ----------
-        theta : float
-            Angle which vector is rotated by
-        unit_axis : array-like
-            Direction of axis which vector rotates around, as a unit vector
+    ----------
+    theta : float
+        Angle which vector is rotated by
+    unit_axis : array-like
+        Direction of axis which vector rotates around, as a unit vector
 
-        Returns
-        -------
-        rot_matrix :
-            Rotational matrix by angle theta around unit_axis
+    Returns
+    -------
+    rot_matrix :
+        Rotational matrix by angle theta around unit_axis
     """
+
     cos = np.cos(theta)
     sin = np.sin(theta)
 
@@ -42,9 +47,35 @@ class OpticalElement:
         ------
         NotImplementedError : if called within this class
         """
+
         raise NotImplementedError()
 
 class SphericalRefraction(OpticalElement):
+    """Spherical surface which inherents base class OpticalElemant.
+        
+    Attributes
+    ----------
+    z0 : float
+        Intercept point of surface with the z-axis
+    curve : float
+        Curvature of surface
+    n1 : int
+        Refractive index outside surface
+    n2 : int
+        Refractive index inside surface
+    rad : float
+        Maximum extent of surface from optical axis
+    
+    Methods
+    -------
+    intercept
+        Return point of intercept between optical element and input ray
+    snell
+        Return direction of refracted ray using Snell's law
+    propagate_ray
+        Propagate ray through spherical element
+    """
+
     def __init__(self, z0, curve, n1, n2, rad):
         """Initialise a spherical optical element with radius and centre point
 
@@ -91,57 +122,39 @@ class SphericalRefraction(OpticalElement):
             First valid position at which the ray and element intercept
         None :
             If there are no valid intercepts
-
-        Raises
-        ------
-        Exception
-            If input is not a ray object
         """
 
         rad = self.__radius
         centre = self.__centre
-        print(f"Radius: {rad}, centre: {centre}")
 
         ray_p = ray.p()
         ray_k_unit = ray.k()
 
-        # distance between centre of element and ray (r), dist = np.sqrt((ax-bx)^2 + (ay-by)^2 + (az-bz)^2)
-        centre_to_ray = np.subtract(ray_p, centre)
-        print(f"Vector from centre to ray: {centre_to_ray}")
+        centre_to_ray = np.subtract(ray_p, centre) # distance between centre of element and ray (r)
+        r_dot_k = np.dot(centre_to_ray, ray_k_unit) # dot product between r and k
+        abs_centre_to_ray = np.linalg.norm(centre_to_ray) # absolute value of r vector
 
-        # dot product between r and k
-        r_dot_k = np.dot(centre_to_ray, ray_k_unit)
-        print(f"Dot product of r and k: {r_dot_k}")
-
-        # absolute value of r vector
-        abs_centre_to_ray = np.linalg.norm(centre_to_ray)
-        print(f"|r|: {abs_centre_to_ray}")
-
-        # use (-r vector * direction of ray) plus or minus sqrt(    (r*k)**2    -    (rx + ry + rz) - radius**2    )
+        # use (-r vector * direction of ray) plus or minus sqrt( (r*k)**2 - (rx + ry + rz) - radius**2 ) 
         length_one = -r_dot_k + np.sqrt(r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2))
         length_two = -r_dot_k - np.sqrt(r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2))
-        print(f"length one, {length_one} and length two: {length_two}")
 
         # intercept = ray position + (length * ray direction)
         intercept_one = np.add(ray_p, (length_one * np.array(ray_k_unit)))
         intercept_two = np.add(ray_p, (length_two * np.array(ray_k_unit)))
-        print(f"intercept one: {intercept_one}, intercept two: {intercept_two}")
-        print(f"norm of intercept one: {np.linalg.norm(intercept_one)}, norm of intercept two: {np.linalg.norm(intercept_two)}")
 
         dist_one = np.linalg.norm(intercept_one - centre)
         dist_two = np.linalg.norm(intercept_two - centre)
-        print(f"distance one: {dist_one}, distance two: {dist_two}")
 
         # check which intercept is valid (within aperture radius and within z0 to centre of element in z-axis)
         # if neither, return None
         for i in (intercept_one, intercept_two):
-            x_sqr_plus_y_sqr = (i[0] ** 2 + i[1] ** 2)
+            x_sqr_plus_y_sqr = i[0] ** 2 + i[1] ** 2
             print(f"x squared + y squared: {x_sqr_plus_y_sqr}")
             if x_sqr_plus_y_sqr <= self.__aperturerad ** 2 and self.__zintercept <= i[2] <= centre[2]:
                 return i
         return None
-   
-    def snell(self,incident_dir,surface_normal):
+
+    def snell(self, incident_dir, surface_normal):
         """Calcuate direction of refracted ray using Snell's law
 
         Parameters
@@ -185,20 +198,20 @@ class SphericalRefraction(OpticalElement):
         # return none if total internal reflection occurs
         if sin_theta_i > (self.__n1 / self.__n2):
             return None
-        
+
         # calculate angle of refracted ray using Snell's law
         sin_theta_r = (sin_theta_i * self.__n1) / self.__n2
         theta_r = np.arcsin(sin_theta_r)
         print(f"sin of refracted theta: {sin_theta_r}")
         print(f"refracted angle: {theta_r}")
-        
+
         # apply rotational matrix to normal unit vector to rotate by the angle of refraction
         # in the plane of the incident angle and normal
         refracted_dir = np.dot(rotation_matrix(-theta_r, unit_axis), (surface_normal))
         print(rotation_matrix(theta_r, surface_normal))
 
         return refracted_dir
-        
+
     def propagate_ray(self, ray):
         """Propagate ray through spherical element
 
@@ -211,8 +224,6 @@ class SphericalRefraction(OpticalElement):
         -------
         ray.vertices() : array-like
             Set of points which comprise the propagated ray
-        terminate_msg :
-            If ray has no valid intercept or is subject to total internal reflection
         """
 
         intercept_point = self.intercept(ray)
@@ -220,17 +231,23 @@ class SphericalRefraction(OpticalElement):
         if intercept_point is None:
             ray.terminate()
             raise NoInterceptError("Ray has no intercept with element")
-        
-        # set normal
+
+        # apply snell's law to incident ray
         intercept_to_centre = np.subtract(intercept_point, self.__centre)
         unit_inter_to_centre = normalise_vector(intercept_to_centre)
         refracted_dir = self.snell(ray.k(), unit_inter_to_centre)
 
         if refracted_dir is None:
             ray.terminate()
-            raise NoInterceptError("Ray is subject to total internal refraction")
+            new_k = ray.k()
+            ray.append(intercept_point, new_k)
+            points = ray.vertices()
+            return points
+            # raise NoInterceptError("Ray is subject to total internal refraction")
 
-        ray.append(intercept_point, refracted_dir)
+        # update ray position to surface intercept point if refraction occurs
+        new_k = refracted_dir
+        ray.append(intercept_point, new_k)
         points = ray.vertices()
         return points
 
@@ -238,20 +255,59 @@ class NoInterceptError(Exception):
     pass
 
 class OutputPlane(OpticalElement):
+    """Output place at specified z-value which inherents base class OpticalElemant.
+        
+    Attributes
+    ----------
+    z0 : float
+        Intercept point of surface with the z-axis
+    
+    Methods
+    -------
+    intercept
+        Calcuate point of intercept between output plane and ray
+    propagate_ray
+        Update ray position to intercept with output plane
+    """
+
     def __init__(self, z0):
+        """Initialise an output plane at a speficied value on z-axis
+
+        Parameters
+        ----------
+        z0 : float
+            Intercept point of surface with the z-axis
+        """
+
         self.__zintercept = z0
 
     def intercept(self, ray):
+        """Calcuate point of intercept between output plane and ray
+
+        Parameters
+        ----------
+        ray : array-like
+            Ray object which is propagated to output plane
+
+        Returns
+        -------
+        self.__intercept : array-like
+            Position at which the ray and plane intercept
+        """
+
         ray_pos = ray.p()
         ray_k = ray.k()
-        idk = (self.__zintercept - ray_pos[2]) / ray_k[2]
-        print(f"{ray_k = }")
-        print(f"{idk = }")
-        self.__interceptpoint = np.add(ray_pos, (idk * ray_k))
+
+        # use [start position] + n * [direction] = [end position] line equation to find n
+        # find end position by using calculated n value
+        n = (self.__zintercept - ray_pos[2]) / ray_k[2]
+        self.__interceptpoint = np.add(ray_pos, (n * ray_k))
         return self.__interceptpoint
 
     def propagate_ray(self, ray):
+        """Update ray position to intercept with output plane"""
+
+        if ray.is_terminated():
+            return ray
         ray.append(self.intercept(ray), ray.k())
         return ray
-        
-

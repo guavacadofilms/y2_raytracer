@@ -1,25 +1,52 @@
 """
-module containing Ray class
+Module containing Ray class, with methods such as updating its postion and direction,
+as well as plotting in both 2D and 3D space
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
 
 class Ray:
-    """class for a Ray object"""
+    """Ray object constructed as a line in 3D euclidian space.
+        
+    Attributes
+    ----------
+    point : array-like
+        Position of ray as 3D vector
+    direction : array-like
+        Direction of ray as 3D vector
+    
+    Methods
+    -------
+    p
+        Returns current position
+    k
+        Returns current direction
+    append
+        Updates current position and direction of ray
+    vertices
+        Returns all points comprising ray
+    terminate
+        Mark the ray as terminated
+    is_terminated
+        Check whether ray is terminated
+    plot
+        Plot all points in a ray in two specified dimensions
+    three_d_plot
+        Plot all points in a ray in three dimensions
+    """
 
-    def __init__(
-        self, point=[0, 0, 0], direction=[0, 0, 1]
-    ):  # initialises a Ray object with a point and direction at the origin
+    def __init__(self, point=[0, 0, 0], direction=[0, 0, 1]):
         """Initialise a ray object
 
         Parameters
         ----------
         point : array-like, default=[0,0,0]
-            Sets current position of ray in 3D cartesian co-ordinate space
+            Sets current position of ray
         direction : array-like, default=[0,0,1]
-            Sets current direction of ray in 3D cartesian co-ordinate space
+            Sets current direction of ray
 
         Raises
         ------
@@ -35,7 +62,7 @@ class Ray:
             raise Exception("direction must have 3 elements (x,y,z co-ordinates")
 
         self.__pos = point
-        self.__dir = direction / np.linalg.norm(direction) #normalise direction vector
+        self.__dir = direction / np.linalg.norm(direction)  # normalise direction vector
         self.__allpos = [np.array(point)]
         self.__terminated = False
 
@@ -101,7 +128,16 @@ class Ray:
 
     def plot(self, axis_one, axis_two):
         points = self.vertices()
-        array_one = points[:,axis_one]
-        array_two = points[:,axis_two]
-        plt.plot(array_one, array_two)
-        plt.show()
+        coords = ["x/mm", "y/mm", "z/mm"]
+        array_one = points[:, axis_one]
+        array_two = points[:, axis_two]
+        plt.plot(array_one, array_two, "cadetblue")
+        plt.xlabel(coords[axis_one])
+        plt.ylabel(coords[axis_two])
+
+    def three_d_plot(self, ax, colour):
+        points = self.vertices()
+        x = points[:, 2]
+        y = points[:, 0]
+        z = points[:, 1]
+        ax.plot(x, y, z, colour)
