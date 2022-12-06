@@ -60,20 +60,31 @@ print(test_ray.vertices())
 # ray plot function
 # test_ray.plot(2, 1)
 
+
+
+
+
+
+
+
 # task 9 - example rays through simple spherical surface
 z0 = 100
 spherical = elems.SphericalRefraction(z0, 0.03, 1, 1.5, 30)
 output = elems.OutputPlane(250)
 
-pos = []
 rays = []
 rays_up = []
 rays_down = []
-n = 10 
+rays_left = []
+rays_right = []
+
+n = 5
 circle = np.linspace(0, np.pi * 2, n) # list of n equally-spaced points on a circle
-spread = 10 # set radius of circle
+spread = 2 # set radius of circle
+z = 0
 
 # create n rays initialised on the circumference of the circle
+
 for i in circle:
     x = spread * np.cos(i)
     y = spread * np.sin(i)
@@ -81,43 +92,151 @@ for i in circle:
     pos = [x, y, 0]
     dir = [0, 0, 1]
     ray = rt.Ray(pos, dir)
+    rays.append(ray)
 
     pos_up = [x, y + (z0 / 2), 0]
     dir_up = [0, -0.5, 1]
     ray_up = rt.Ray(pos_up, dir_up)
+    rays_up.append(ray_up)
 
     pos_down = [x, y - (z0 / 2), 0]
     dir_down = [0, 0.5, 1]
     ray_down = rt.Ray(pos_down, dir_down)
-
-    rays.append(ray)
-    rays_up.append(ray_up)
     rays_down.append(ray_down)
+
+    pos_left = [x - (z0 / 2) - 10, y, z]
+    dir_left = [0.5, 0, 1]
+    ray_left = rt.Ray(pos_left, dir_left)
+    rays_left.append(ray_left)
+
+    pos_right = [x + (z0 / 2) + 10, y, z]
+    dir_right = [-0.5, 0, 1]
+    ray_right = rt.Ray(pos_right, dir_right)
+    rays_right.append(ray_right)
+
 
 
 
 # create set of 3D axis
-ax = plt.axes(projection="3d")
-ax.set_xlabel("z")
-ax.set_ylabel("x")
-ax.set_zlabel("y")
+# ax = plt.axes(projection="3d")
+# ax.set_xlabel("z/mm")
+# ax.set_ylabel("x/mm")
+# ax.set_zlabel("y/mm")
 
 # propagate each ray through spherical surface onto output plane
 # then plot onto either 2D or 3D axes
-for ray, ray_up, ray_down in zip(rays, rays_up, rays_down):
+for ray, ray_up, ray_down, ray_left, ray_right in zip(rays, rays_up, rays_down, rays_left, rays_right):
     spherical.propagate_ray(ray)
     output.propagate_ray(ray)
-    ray.three_d_plot(ax, "green")
-    # ray.plot(2, 0)
+    # ray.three_d_plot(ax, "green")
+    ray.plot(2, 0)
 
     spherical.propagate_ray(ray_up)
     output.propagate_ray(ray_up)
-    ray_up.three_d_plot(ax, "red")
-    # ray.plot(2, 0)
+    # ray_up.three_d_plot(ax, "red")
+    ray_up.plot(2, 0)
 
     spherical.propagate_ray(ray_down)
     output.propagate_ray(ray_down)
-    ray_down.three_d_plot(ax, "cadetblue")
-    # ray.plot(2, 0)
+    # ray_down.three_d_plot(ax, "cadetblue")
+    ray_down.plot(2, 0)
+
+    spherical.propagate_ray(ray_left)
+    output.propagate_ray(ray_left)
+    # ray_left.three_d_plot(ax, "orange")
+    ray_left.plot(2, 0)
+
+    spherical.propagate_ray(ray_right)
+    output.propagate_ray(ray_right)
+    # ray_right.three_d_plot(ax, "purple")
+    ray_right.plot(2, 0)
 
 plt.show()
+
+
+
+
+
+
+
+# task 10 - estimate position of paraxial focus
+
+z0 = 100
+spherical = elems.SphericalRefraction(z0, 0.03, 1, 1.5, 30)
+output = elems.OutputPlane(120)
+
+rays = []
+
+n = 11
+circle = np.linspace(0, np.pi * 2, n) # list of n equally-spaced points on a circle
+spread = 0.1 # set radius of circle to 0.1mm
+z = 0
+
+# create n rays initialised on the circumference of the circle
+
+for i in circle:
+    x = spread * np.cos(i)
+    y = spread * np.sin(i)
+
+    pos = [x, y, z]
+    dir = [0, 0, 1]
+    ray = rt.Ray(pos, dir)
+    rays.append(ray)
+
+# create set of 3D axis
+# ax = plt.axes(projection="3d")
+# ax.set_xlabel("z/mm")
+# ax.set_ylabel("x/mm")
+# ax.set_zlabel("y/mm")
+
+# propagate each ray through spherical surface onto output plane
+# then plot onto either 2D or 3D axes
+for ray in rays:
+    spherical.propagate_ray(ray)
+    output.propagate_ray(ray)
+    # ray.three_d_plot(ax, "green")
+    ray.plot(2, 0)
+
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

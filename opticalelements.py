@@ -149,7 +149,6 @@ class SphericalRefraction(OpticalElement):
         # if neither, return None
         for i in (intercept_one, intercept_two):
             x_sqr_plus_y_sqr = i[0] ** 2 + i[1] ** 2
-            print(f"x squared + y squared: {x_sqr_plus_y_sqr}")
             if x_sqr_plus_y_sqr <= self.__aperturerad ** 2 and self.__zintercept <= i[2] <= centre[2]:
                 return i
         return None
@@ -176,9 +175,7 @@ class SphericalRefraction(OpticalElement):
         # since |a| and |b| are both 1, dot product of a and b = cos(theta)
         # using 1 = sin^2 + cos^2, can rearrange to sin(theta) = sqrt(1 - cos^2(theta))
         dot_incident_normal = np.dot(incident_dir, surface_normal)
-        print(f"{dot_incident_normal = }")
         cross_incident_normal = np.cross(incident_dir, surface_normal)
-        print(f"{cross_incident_normal = }")
 
         # set the normal of the plane which the ray is confined to, as a unit vector
         # if ray is going through centre, set unit axis to 1 to avoid division by 0 error
@@ -187,13 +184,10 @@ class SphericalRefraction(OpticalElement):
             unit_axis = [0, 0, 1]
         else:
             unit_axis = normalise_vector(cross_incident_normal)
-        print(f"{unit_axis = }")
 
         # use sin^2(x) + cos^2(x) = 1 to calculate sin(x)
         sin_theta_i = np.sqrt(1 - (dot_incident_normal ** 2))
         theta_i = np.arcsin(sin_theta_i)
-        print(f"sin of incident theta: {sin_theta_i}")
-        print(f"incident angle: {theta_i}")
 
         # return none if total internal reflection occurs
         if sin_theta_i > (self.__n1 / self.__n2):
@@ -202,13 +196,10 @@ class SphericalRefraction(OpticalElement):
         # calculate angle of refracted ray using Snell's law
         sin_theta_r = (sin_theta_i * self.__n1) / self.__n2
         theta_r = np.arcsin(sin_theta_r)
-        print(f"sin of refracted theta: {sin_theta_r}")
-        print(f"refracted angle: {theta_r}")
 
         # apply rotational matrix to normal unit vector to rotate by the angle of refraction
         # in the plane of the incident angle and normal
         refracted_dir = np.dot(rotation_matrix(-theta_r, unit_axis), (surface_normal))
-        print(rotation_matrix(theta_r, surface_normal))
 
         return refracted_dir
 
@@ -222,7 +213,7 @@ class SphericalRefraction(OpticalElement):
 
         Returns
         -------
-        ray.vertices() : array-like
+        points : array-like
             Set of points which comprise the propagated ray
         """
 
@@ -243,7 +234,6 @@ class SphericalRefraction(OpticalElement):
             ray.append(intercept_point, new_k)
             points = ray.vertices()
             return points
-            # raise NoInterceptError("Ray is subject to total internal refraction")
 
         # update ray position to surface intercept point if refraction occurs
         new_k = refracted_dir
