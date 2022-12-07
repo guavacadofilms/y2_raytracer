@@ -141,3 +141,49 @@ class Ray:
         y = points[:, 0]
         z = points[:, 1]
         ax.plot(x, y, z, colour)
+
+    def spot_diag(self, index, colour = "cadetblue"):
+        points = self.vertices()
+        x = points[index, 0]
+        y = points[index, 1]
+        plt.scatter(x, y, c = colour)
+        plt.xlabel("x/mm")
+        plt.ylabel("y/mm")
+
+def make_bundle(max_rad):
+    """Function to create evenly-spaced points on concentric circles.
+
+    Parameters
+    ----------
+    max_rad : int
+        Radius of bundle
+
+    Returns
+    -------
+    rays : array-like
+        Set of rays initialised by the points generated on the circles
+        
+    """
+
+    rays = []
+    spread = max_rad # set max. radius of collimated beam
+    integers = range(1, spread + 1)
+    rings = 6 * np.array(integers) # number of evenly-spaced points to create for each circle
+    spread_range = np.linspace(0, spread, len(rings) + 1)[1:] # array for the radii of each ring
+    
+    for a in range(len(spread_range)): # for each ring...
+        spread = spread_range[a] # set radius
+        ring = rings[a] # set no. of points on the ring
+        angles = np.linspace(0, np.pi * 2, ring) # create list of evenly-spaced angles
+        
+        # create x and y position for each point on the ring
+        for b in angles: 
+            x = spread * np.cos(b)
+            y = spread * np.sin(b)
+            pos = [x, y, 0]
+            dir = [0, 0, 1]
+            ray = Ray(pos, dir)
+            rays.append(ray)
+
+    rays.append(Ray([0, 0, 0], [0, 0, 1])) # add central ray at origin
+    return rays
