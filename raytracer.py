@@ -126,16 +126,16 @@ class Ray:
     def is_terminated(self):
         return self.__terminated
 
-    def plot(self, axis_one, axis_two):
+    def plot(self, axis_one, axis_two, colour = "cadetblue"):
         points = self.vertices()
         coords = ["x/mm", "y/mm", "z/mm"]
         array_one = points[:, axis_one]
         array_two = points[:, axis_two]
-        plt.plot(array_one, array_two, "cadetblue")
+        plt.plot(array_one, array_two, colour)
         plt.xlabel(coords[axis_one])
         plt.ylabel(coords[axis_two])
 
-    def three_d_plot(self, ax, colour):
+    def three_d_plot(self, ax, colour = "cadetblue"):
         points = self.vertices()
         x = points[:, 2]
         y = points[:, 0]

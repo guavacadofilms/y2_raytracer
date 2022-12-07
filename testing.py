@@ -60,13 +60,6 @@ print(test_ray.vertices())
 # ray plot function
 # test_ray.plot(2, 1)
 
-
-
-
-
-
-
-
 # task 9 - example rays through simple spherical surface
 z0 = 100
 spherical = elems.SphericalRefraction(z0, 0.03, 1, 1.5, 30)
@@ -78,9 +71,9 @@ rays_down = []
 rays_left = []
 rays_right = []
 
-n = 5
-circle = np.linspace(0, np.pi * 2, n) # list of n equally-spaced points on a circle
-spread = 2 # set radius of circle
+n = 11
+circle = np.linspace(0, np.pi * 2, n)  # list of n equally-spaced points on a circle
+spread = 5  # set radius of circle
 z = 0
 
 # create n rays initialised on the circumference of the circle
@@ -89,6 +82,7 @@ for i in circle:
     x = spread * np.cos(i)
     y = spread * np.sin(i)
 
+    ######## make function for this in main investigation to avoid repeating code #####
     pos = [x, y, 0]
     dir = [0, 0, 1]
     ray = rt.Ray(pos, dir)
@@ -115,8 +109,6 @@ for i in circle:
     rays_right.append(ray_right)
 
 
-
-
 # create set of 3D axis
 # ax = plt.axes(projection="3d")
 # ax.set_xlabel("z/mm")
@@ -129,47 +121,42 @@ for ray, ray_up, ray_down, ray_left, ray_right in zip(rays, rays_up, rays_down, 
     spherical.propagate_ray(ray)
     output.propagate_ray(ray)
     # ray.three_d_plot(ax, "green")
-    ray.plot(2, 0)
+    ray.plot(2, 0, "green")
 
     spherical.propagate_ray(ray_up)
     output.propagate_ray(ray_up)
     # ray_up.three_d_plot(ax, "red")
-    ray_up.plot(2, 0)
+    ray_up.plot(2, 0, "red")
 
     spherical.propagate_ray(ray_down)
     output.propagate_ray(ray_down)
     # ray_down.three_d_plot(ax, "cadetblue")
-    ray_down.plot(2, 0)
+    ray_down.plot(2, 0, "cadetblue")
 
     spherical.propagate_ray(ray_left)
     output.propagate_ray(ray_left)
     # ray_left.three_d_plot(ax, "orange")
-    ray_left.plot(2, 0)
+    ray_left.plot(2, 0, "orange")
 
     spherical.propagate_ray(ray_right)
     output.propagate_ray(ray_right)
     # ray_right.three_d_plot(ax, "purple")
-    ray_right.plot(2, 0)
+    ray_right.plot(2, 0, "purple")
 
 plt.show()
-
-
-
-
-
 
 
 # task 10 - estimate position of paraxial focus
 
 z0 = 100
 spherical = elems.SphericalRefraction(z0, 0.03, 1, 1.5, 30)
-output = elems.OutputPlane(120)
+output = elems.OutputPlane(210)
 
 rays = []
 
 n = 11
-circle = np.linspace(0, np.pi * 2, n) # list of n equally-spaced points on a circle
-spread = 0.1 # set radius of circle to 0.1mm
+circle = np.linspace(0, np.pi * 2, n)  # list of n equally-spaced points on a circle
+spread = 0.1  # set radius of circle to 0.1mm
 z = 0
 
 # create n rays initialised on the circumference of the circle
@@ -184,59 +171,49 @@ for i in circle:
     rays.append(ray)
 
 # create set of 3D axis
-# ax = plt.axes(projection="3d")
-# ax.set_xlabel("z/mm")
-# ax.set_ylabel("x/mm")
-# ax.set_zlabel("y/mm")
+ax = plt.axes(projection="3d")
+ax.set_xlabel("z/mm")
+ax.set_ylabel("x/mm")
+ax.set_zlabel("y/mm")
 
 # propagate each ray through spherical surface onto output plane
 # then plot onto either 2D or 3D axes
 for ray in rays:
     spherical.propagate_ray(ray)
     output.propagate_ray(ray)
+    ray.three_d_plot(ax, "green")
+    # ray.plot(2, 0)
+
+plt.show()
+
+# the paraxial focus for this spherical surface is estimated to be 100mm
+# online research (http://web.mit.edu/2.710/Fall06/2.710-wk2-b-sl.pdf pg. 43)
+# tells us that focus f' can be approximated as n2 * (R / (n2 - n1))
+# so 1.5 * (33.33333333 / (1.5 - 1)) = 1.5 * 66.666 = 99.9999mm
+
+# task 11 - form an image using spherical object
+
+z0 = 100
+spherical = elems.SphericalRefraction(z0, 0.03, 1, 1.5, 30)
+output = elems.OutputPlane(450)
+
+pos = [5, 0, 0] # set height of object in x-z plane
+n = 4 # no. of rays
+image_angles = np.linspace(0, np.arctan(0.05), n) # list of n equally-spaced angles from 0 to pi radians
+spread = -1 # decrease in x-direction as angle increases
+rays_img = []
+
+for i in image_angles:
+    x = spread * np.sin(i)
+    dir = [x, 0, 1]
+    print(x)
+    ray = rt.Ray(pos, dir)
+    rays_img.append(ray)
+
+for ray in rays_img:
+    spherical.propagate_ray(ray)
+    output.propagate_ray(ray)
     # ray.three_d_plot(ax, "green")
     ray.plot(2, 0)
 
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

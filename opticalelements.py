@@ -6,12 +6,14 @@ All elements have methods to propagate a ray object through them
 
 import numpy as np
 
+
 def normalise_vector(vector):
     """Normalise an input vector"""
 
     if len(vector) != 3:
         raise Exception("Enter 3-D vector as a 3-element array")
     return vector / np.linalg.norm(vector)
+
 
 def rotation_matrix(theta, unit_axis):
     """Calculate rotation matrix from angle and axis
@@ -39,6 +41,7 @@ def rotation_matrix(theta, unit_axis):
     rot_matrix = (cos * identity_matrix) + (sin * cross_prod_matrix) + ((1 - cos) * outer_matrix)
     return rot_matrix
 
+
 class OpticalElement:
     def propagate_ray(self, ray):
         """Propagate a ray through the optical element
@@ -49,6 +52,7 @@ class OpticalElement:
         """
 
         raise NotImplementedError()
+
 
 class SphericalRefraction(OpticalElement):
     """Spherical surface which inherents base class OpticalElemant.
@@ -130,11 +134,11 @@ class SphericalRefraction(OpticalElement):
         ray_p = ray.p()
         ray_k_unit = ray.k()
 
-        centre_to_ray = np.subtract(ray_p, centre) # distance between centre of element and ray (r)
-        r_dot_k = np.dot(centre_to_ray, ray_k_unit) # dot product between r and k
-        abs_centre_to_ray = np.linalg.norm(centre_to_ray) # absolute value of r vector
+        centre_to_ray = np.subtract(ray_p, centre)  # distance between centre of element and ray (r)
+        r_dot_k = np.dot(centre_to_ray, ray_k_unit)  # dot product between r and k
+        abs_centre_to_ray = np.linalg.norm(centre_to_ray)  # absolute value of r vector
 
-        # use (-r vector * direction of ray) plus or minus sqrt( (r*k)**2 - (rx + ry + rz) - radius**2 ) 
+        # use (-r vector * direction of ray) plus or minus sqrt( (r*k)**2 - (rx + ry + rz) - radius**2 )
         length_one = -r_dot_k + np.sqrt(r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2))
         length_two = -r_dot_k - np.sqrt(r_dot_k ** 2 - (abs_centre_to_ray ** 2 - rad ** 2))
 
@@ -224,7 +228,7 @@ class SphericalRefraction(OpticalElement):
             raise NoInterceptError("Ray has no intercept with element")
 
         # apply snell's law to incident ray
-        intercept_to_centre = np.subtract(intercept_point, self.__centre)
+        intercept_to_centre = np.subtract(self.__centre, intercept_point)
         unit_inter_to_centre = normalise_vector(intercept_to_centre)
         refracted_dir = self.snell(ray.k(), unit_inter_to_centre)
 
@@ -241,8 +245,10 @@ class SphericalRefraction(OpticalElement):
         points = ray.vertices()
         return points
 
+
 class NoInterceptError(Exception):
     pass
+
 
 class OutputPlane(OpticalElement):
     """Output place at specified z-value which inherents base class OpticalElemant.
