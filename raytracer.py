@@ -187,3 +187,38 @@ def make_bundle(max_rad):
 
     rays.append(Ray([0, 0, 0], [0, 0, 1])) # add central ray at origin
     return rays
+
+def rms_radius(array):
+    radii_sq = []
+    for ray in array:
+        ray_pos = ray.p()
+        x = ray_pos[0]
+        y = ray_pos[1]
+        rad_sq = (x ** 2) + (y ** 2)
+        radii_sq.append(rad_sq)
+    mean_sq = np.mean(radii_sq)
+    rms = np.sqrt(mean_sq)
+    return rms
+
+def paraxial_bundle(n, rad):
+    rays = []
+    circle = np.linspace(0, np.pi * 2, n)
+    spread = rad 
+    z = 0
+
+    for i in circle:
+        x = spread * np.cos(i)
+        y = spread * np.sin(i)
+
+        pos = [x, y, z]
+        dir = [0, 0, 1]
+        ray = Ray(pos, dir)
+        rays.append(ray)
+    return rays
+
+def make_3d_axis():
+    ax = plt.axes(projection="3d")
+    ax.set_xlabel("z/mm")
+    ax.set_ylabel("x/mm")
+    ax.set_zlabel("y/mm")
+    return ax

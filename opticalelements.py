@@ -99,8 +99,8 @@ class SphericalRefraction(OpticalElement):
 
         self.__zintercept = z0
         self.__curvature = curve
-        self.__n1 = n1
-        self.__n2 = n2
+        self.n1 = n1
+        self.n2 = n2
         self.__aperturerad = rad
 
         # calculate radius with 1/curvature
@@ -194,11 +194,11 @@ class SphericalRefraction(OpticalElement):
         theta_i = np.arcsin(sin_theta_i)
 
         # return none if total internal reflection occurs
-        if sin_theta_i > (self.__n1 / self.__n2):
+        if sin_theta_i > (self.n1 / self.n2):
             return None
 
         # calculate angle of refracted ray using Snell's law
-        sin_theta_r = (sin_theta_i * self.__n1) / self.__n2
+        sin_theta_r = (sin_theta_i * self.n1) / self.n2
         theta_r = np.arcsin(sin_theta_r)
 
         # apply rotational matrix to normal unit vector to rotate by the angle of refraction
@@ -307,3 +307,91 @@ class OutputPlane(OpticalElement):
             return ray
         ray.append(self.intercept(ray), ray.k())
         return ray
+
+class PlaneRefraction(SphericalRefraction):
+    """"""
+
+    def __init__(self, z0, n1, n2, rad):
+        """Initialise an output plane at a speficied value on z-axis
+
+        Parameters
+        ----------
+        z0 : float
+            Intercept point of surface with the z-axis
+        n1 : int
+            Refractive index outside surface
+        n2 : int
+            Refractive index inside surface
+        rad : float
+            Distance from z-axis to edge of plane surface
+        """
+
+        self.__zintercept = z0
+        self.__aperturerad = rad
+        self.n1 = n1
+        self.n2 = n2
+    
+    def intercept(self, ray):
+        """Calcuate point of intercept between plane and ray
+
+        Parameters
+        ----------
+        ray : array-like
+            Ray object which is propagated to output plane
+
+        Returns
+        -------
+        self.__intercept : array-like
+            Position at which the ray and plane intercept
+        None :
+            If there is no intercept with plane
+        """
+
+        ray_pos = ray.p()
+        ray_k = ray.k()
+
+        # use [start position] + n * [direction] = [end position] line equation to find n
+        # find end position by using calculated n value
+        n = (self.__zintercept - ray_pos[2]) / ray_k[2]
+        self.__interceptpoint = np.add(ray_pos, (n * ray_k))
+        x_sqr_plus_y_sqr = self.__interceptpoint[0] ** 2 + self.__interceptpoint[1] ** 2
+        if x_sqr_plus_y_sqr <= self.__aperturerad ** 2:
+            return self.__interceptpoint
+        return None
+
+    def propagate_ray(self, ray):
+        """Propagate ray through plane element
+
+        Parameters
+        ----------
+        ray :
+            Incident ray
+
+        Returns
+        -------
+        points : array-like
+            Set of points which comprise the propagated ray
+        """
+
+        intercept_point = self.intercept(ray)
+
+        if intercept_point is None:
+            ray.terminate()
+            raise NoInterceptError("Ray has no intercept with plane surface")
+
+        # apply snell's law to incident ray
+        normal_of_plane = [0, 0, 1]
+        refracted_dir = self.snell(ray.k(), normal_of_plane)
+        
+        if refracted_dir is None:
+            ray.terminate()
+            new_k = ray.k()
+            ray.append(intercept_point, new_k)
+            points = ray.vertices()
+            return points
+
+        # update ray position to surface intercept point if refraction occurs
+        new_k = refracted_dir
+        ray.append(intercept_point, new_k)
+        points = ray.vertices()
+        return points
