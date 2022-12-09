@@ -153,8 +153,12 @@ class SphericalRefraction(OpticalElement):
         # if neither, return None
         for i in (intercept_one, intercept_two):
             x_sqr_plus_y_sqr = i[0] ** 2 + i[1] ** 2
-            if x_sqr_plus_y_sqr <= self.__aperturerad ** 2 and self.__zintercept <= i[2] <= centre[2]:
-                return i
+            if rad > 0:
+                if x_sqr_plus_y_sqr <= self.__aperturerad ** 2 and self.__zintercept <= i[2] <= centre[2]:
+                    return i
+            if rad < 0:
+                if x_sqr_plus_y_sqr <= self.__aperturerad ** 2 and centre[2] <= i[2] <= self.__zintercept:
+                    return i
         return None
 
     def snell(self, incident_dir, surface_normal):
@@ -228,7 +232,11 @@ class SphericalRefraction(OpticalElement):
             raise NoInterceptError("Ray has no intercept with element")
 
         # apply snell's law to incident ray
-        intercept_to_centre = np.subtract(self.__centre, intercept_point)
+        rad = self.__radius
+        if rad > 0:
+            intercept_to_centre = np.subtract(self.__centre, intercept_point)
+        if rad < 0:
+            intercept_to_centre = np.subtract(intercept_point, self.__centre)
         unit_inter_to_centre = normalise_vector(intercept_to_centre)
         refracted_dir = self.snell(ray.k(), unit_inter_to_centre)
 
@@ -308,6 +316,7 @@ class OutputPlane(OpticalElement):
         ray.append(self.intercept(ray), ray.k())
         return ray
 
+
 class PlaneRefraction(SphericalRefraction):
     """"""
 
@@ -330,7 +339,7 @@ class PlaneRefraction(SphericalRefraction):
         self.__aperturerad = rad
         self.n1 = n1
         self.n2 = n2
-    
+
     def intercept(self, ray):
         """Calcuate point of intercept between plane and ray
 
@@ -382,7 +391,7 @@ class PlaneRefraction(SphericalRefraction):
         # apply snell's law to incident ray
         normal_of_plane = [0, 0, 1]
         refracted_dir = self.snell(ray.k(), normal_of_plane)
-        
+
         if refracted_dir is None:
             ray.terminate()
             new_k = ray.k()

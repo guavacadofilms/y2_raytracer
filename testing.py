@@ -197,10 +197,10 @@ z0 = 100
 spherical = elems.SphericalRefraction(z0, 0.03, 1, 1.5, 30)
 output = elems.OutputPlane(450)
 
-pos = [5, 0, 0] # set height of object in x-z plane
-n = 4 # no. of rays
-image_angles = np.linspace(0, np.arctan(0.05), n) # list of n equally-spaced angles from 0 to pi radians
-spread = -1 # decrease in x-direction as angle increases
+pos = [5, 0, 0]  # set height of object in x-z plane
+n = 4  # no. of rays
+image_angles = np.linspace(0, np.arctan(0.05), n)  # list of n equally-spaced angles from 0 to pi radians
+spread = -1  # decrease in x-direction as angle increases
 rays_img = []
 
 for i in image_angles:

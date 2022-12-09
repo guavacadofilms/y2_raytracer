@@ -121,12 +121,23 @@ class Ray:
         return self.__allpos
 
     def terminate(self):
+        """Set ray as being terminated"""
         self.__terminated = True
 
     def is_terminated(self):
+        """Check whether ray is terminated"""
         return self.__terminated
 
-    def plot(self, axis_one, axis_two, colour = "cadetblue"):
+    def plot(self, axis_one, axis_two, colour="cadetblue"):
+        """Plot ray onto a set of 2D axes
+        
+        Parameters:
+        -----------
+        axis_one : int
+            Index of co-ordinate to plot on the x-axis
+        axis-two : int
+            Index of co-ordinate to plot on the y-axis
+        """
         points = self.vertices()
         coords = ["x/mm", "y/mm", "z/mm"]
         array_one = points[:, axis_one]
@@ -135,20 +146,24 @@ class Ray:
         plt.xlabel(coords[axis_one])
         plt.ylabel(coords[axis_two])
 
-    def three_d_plot(self, ax, colour = "cadetblue"):
+    def three_d_plot(self, ax, colour="cadetblue"):
+        """Plot ray onto a set of 3D axes"""
         points = self.vertices()
         x = points[:, 2]
         y = points[:, 0]
         z = points[:, 1]
         ax.plot(x, y, z, colour)
 
-    def spot_diag(self, index, colour = "cadetblue"):
+    def spot_diag(self, index, colour="cadetblue"):
+        """Plot spot diagram for ray with input paramter as the index for a specified point
+        comprising the ray"""
         points = self.vertices()
         x = points[index, 0]
         y = points[index, 1]
-        plt.scatter(x, y, c = colour)
+        plt.scatter(x, y, c=colour)
         plt.xlabel("x/mm")
         plt.ylabel("y/mm")
+
 
 def make_bundle(max_rad):
     """Function to create evenly-spaced points on concentric circles.
@@ -166,18 +181,18 @@ def make_bundle(max_rad):
     """
 
     rays = []
-    spread = max_rad # set max. radius of collimated beam
+    spread = max_rad  # set max. radius of collimated beam
     integers = range(1, spread + 1)
-    rings = 6 * np.array(integers) # number of evenly-spaced points to create for each circle
-    spread_range = np.linspace(0, spread, len(rings) + 1)[1:] # array for the radii of each ring
-    
-    for a in range(len(spread_range)): # for each ring...
-        spread = spread_range[a] # set radius
-        ring = rings[a] # set no. of points on the ring
-        angles = np.linspace(0, np.pi * 2, ring) # create list of evenly-spaced angles
-        
+    rings = 6 * np.array(integers)  # number of evenly-spaced points to create for each circle
+    spread_range = np.linspace(0, spread, len(rings) + 1)[1:]  # array for the radii of each ring
+
+    for a in range(len(spread_range)):  # for each ring...
+        spread = spread_range[a]  # set radius
+        ring = rings[a]  # set no. of points on the ring
+        angles = np.linspace(0, np.pi * 2, ring)  # create list of evenly-spaced angles
+
         # create x and y position for each point on the ring
-        for b in angles: 
+        for b in angles:
             x = spread * np.cos(b)
             y = spread * np.sin(b)
             pos = [x, y, 0]
@@ -185,10 +200,23 @@ def make_bundle(max_rad):
             ray = Ray(pos, dir)
             rays.append(ray)
 
-    rays.append(Ray([0, 0, 0], [0, 0, 1])) # add central ray at origin
+    rays.append(Ray([0, 0, 0], [0, 0, 1]))  # add central ray at origin
     return rays
 
+
 def rms_radius(array):
+    """Calculate root mean square of a set of points in a plane
+    
+    Parameters
+    ----------
+    array : array-like
+        Set of rays for which to calculate the RMS radius
+    
+    Returns
+    -------
+    rms : float
+        Root mean squared radius of points on spot diagram
+    """
     radii_sq = []
     for ray in array:
         ray_pos = ray.p()
@@ -200,10 +228,25 @@ def rms_radius(array):
     rms = np.sqrt(mean_sq)
     return rms
 
+
 def paraxial_bundle(n, rad):
+    """Create beam of rays to identify paraxial focus
+    
+    Parameters
+    ----------
+    n : int
+        Number of rays in beam
+    rad : float
+        Radius of beam
+        
+    Returns
+    -------
+    rays : array-like
+        Set of rays which comprise the paraxial beam
+    """
     rays = []
     circle = np.linspace(0, np.pi * 2, n)
-    spread = rad 
+    spread = rad
     z = 0
 
     for i in circle:
@@ -216,7 +259,9 @@ def paraxial_bundle(n, rad):
         rays.append(ray)
     return rays
 
+
 def make_3d_axis():
+    """Create a set of 3D axes to allow visualisation of ray tracer in 3D"""
     ax = plt.axes(projection="3d")
     ax.set_xlabel("z/mm")
     ax.set_ylabel("x/mm")
