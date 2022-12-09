@@ -17,11 +17,7 @@ output = elems.OutputPlane(200)
 
 rays = rt.make_bundle(5)
 
-# uncomment the code below to create set of 3D axis
-# ax = plt.axes(projection="3d")
-# ax.set_xlabel("z/mm")
-# ax.set_ylabel("x/mm")
-# ax.set_zlabel("y/mm")
+# ax = rt.make_3d_axis()  # uncomment to create set of 3D axis
 
 # propagate each ray through spherical surface onto output plane
 # then plot onto either 2D or 3D axes
