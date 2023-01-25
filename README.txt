@@ -1,7 +1,7 @@
 README
 
 This project involves an optical ray tracer created in Python using object-oriented programming,
-testing the methods which the classes are built with, and investiagting the imaging performance of three 
+testing the methods which the classes are built with, and investigating the imaging performance of three 
 different lens systems. 
 
 ########################################################
