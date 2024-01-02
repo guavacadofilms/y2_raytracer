@@ -25,7 +25,7 @@ rays = rt.make_bundle(5)
 for ray in rays:
     spherical.propagate_ray(ray)
     output.propagate_ray(ray)
-    # ray.three_d_plot(ax) (uncomment to plot in 3D)
+    # ray.three_d_plot(ax) #(uncomment to plot in 3D)
     ray.plot(2, 0)
 plt.show()
 
